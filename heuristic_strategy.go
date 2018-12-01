@@ -38,39 +38,54 @@ var supportedTypes = []fastimage.ImageType{
 	fastimage.PNG,
 	fastimage.GIF,
 }
-var minRatio = 0.6
+var minRatio = 0.5
 var maxRatio = 4.0
 var minSize = 20000.0
 
 type heuristicStrategy struct {
 }
 
-func (og *heuristicStrategy) Scraps(doc *goquery.Document) (*SearchResult, error) {
+func (hs *heuristicStrategy) Scrape(srcUrl *url.URL, doc *goquery.Document) (*SearchResult, error) {
 	allEl := doc.Find("img")
 	allEl = allEl.Not(strings.Join(selectorsIgnore, ", "))
 
 	p1El := allEl.Filter(strings.Join(selectorsPrio1, ", "))
-	p1Urls := og.getUrls(p1El)
-	p1Match := og.findMatch(p1Urls)
+	p1Urls := hs.getUrls(p1El, srcUrl)
+	p1Match := hs.findMatch(p1Urls)
 
 	if p1Match != nil {
 		return &SearchResult{Image: p1Match.String()}, nil
+	}
+
+	p2El := allEl
+	p2Urls := hs.getUrls(p2El, srcUrl)
+	p2Match := hs.findMatch(p2Urls)
+	if p2Match != nil {
+		return &SearchResult{Image: p2Match.String()}, nil
 	}
 
 	// p1Res := checkImages()
 
 	return nil, nil
 }
-func (og *heuristicStrategy) findMatch(urls []*url.URL) *url.URL {
+func (hs *heuristicStrategy) findMatch(urls []*url.URL) *url.URL {
 	for _, u := range urls {
 		imgType, size, err := fastimage.DetectImageType(u.String())
+
 		if err != nil {
+			Logger.Printf("fastimage err %v \n", err)
 			continue
 		}
-		if !og.typeMatch(imgType) {
+
+		Logger.Printf("check type %s \n", u.String())
+		if !hs.typeMatch(imgType) {
+			Logger.Printf("failed type check %s \n", u.String())
 			continue
 		}
-		if !og.sizeMatch(size) {
+
+		Logger.Printf("check size %s \n", u.String())
+		if !hs.sizeMatch(size) {
+			Logger.Printf("failed size check %s \n", u.String())
 			continue
 		}
 
@@ -86,10 +101,13 @@ func (og *heuristicStrategy) sizeMatch(s *fastimage.ImageSize) bool {
 	ratio := w / h
 	size := w * h
 	if ratio > maxRatio {
+		Logger.Printf("ratio missmatch | %f > %f  \n", ratio, maxRatio)
 		return false
 	} else if ratio < minRatio {
+		Logger.Printf("ratio missmatch | %f < %f  \n", ratio, minRatio)
 		return false
 	} else if size < minSize {
+		Logger.Printf("size missmatch | %f < %f  \n", size, minSize)
 		return false
 	} else {
 		return true
@@ -100,16 +118,24 @@ func (og *heuristicStrategy) typeMatch(t fastimage.ImageType) bool {
 	return funk.Contains(supportedTypes, t)
 }
 
-func (og *heuristicStrategy) getUrls(selections *goquery.Selection) []*url.URL {
+func (og *heuristicStrategy) getUrls(selections *goquery.Selection, pageUrl *url.URL) []*url.URL {
 	var res []*url.URL
 	selections.Each(func(i int, s *goquery.Selection) {
-		href := s.AttrOr("src", "")
-		if href == "" {
+		src := s.AttrOr("src", "")
+		if src == "" {
+			Logger.Printf("no src attr url: %s \n", pageUrl.String())
 			return
 		}
 
-		parsedHref, _ := url.Parse(href)
-		if parsedHref != nil && parsedHref.IsAbs() {
+		parsedHref, err := url.Parse(src)
+		if err != nil || parsedHref == nil {
+			Logger.Printf("invalid url: %s | src: %s | err: %v | parsed: %v \n", pageUrl.String(), src, err, parsedHref)
+			return
+		}
+
+		parsedHref = pageUrl.ResolveReference(parsedHref)
+		if parsedHref.IsAbs() {
+			Logger.Printf("fetched src url: %s | src: %s \n", pageUrl.String(), src)
 			res = append(res, parsedHref)
 		}
 	})

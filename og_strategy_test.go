@@ -1,6 +1,7 @@
 package heroscrape
 
 import (
+	"net/url"
 	"strings"
 	"testing"
 
@@ -31,8 +32,9 @@ var nonFullHtml string = `
 `
 
 func TestOgStrategy(t *testing.T) {
+	u, _ := url.Parse("http://www.imdb.com")
 	html := strings.NewReader(fullHtml)
-	result, err := ScrapWithStrategy(html, NewOgStrategy())
+	result, err := ScrapWithStrategy(u, html, NewOgStrategy())
 	assert.NoError(t, err)
 
 	assert.Equal(t, "The Rock", result.Title)
@@ -41,8 +43,9 @@ func TestOgStrategy(t *testing.T) {
 }
 
 func TestOgStrategyPartial(t *testing.T) {
+	u, _ := url.Parse("http://www.imdb.com")
 	html := strings.NewReader(nonFullHtml)
-	result, err := ScrapWithStrategy(html, NewOgStrategy())
+	result, err := ScrapWithStrategy(u, html, NewOgStrategy())
 	assert.Equal(t, NotComplete, err)
 
 	assert.Equal(t, "The Rock", result.Title)

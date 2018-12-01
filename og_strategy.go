@@ -1,6 +1,8 @@
 package heroscrape
 
 import (
+	"net/url"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -13,7 +15,7 @@ func NewOgStrategy() Strategy {
 	return new(ogStrategy)
 }
 
-func (og *ogStrategy) Scraps(doc *goquery.Document) (*SearchResult, error) {
+func (og *ogStrategy) Scrape(srcUrl *url.URL, doc *goquery.Document) (*SearchResult, error) {
 	var result = new(SearchResult)
 
 	result.Title = GetAttrFromSelector(doc, "meta[property='og:title']", "content")
