@@ -45,6 +45,10 @@ var minSize = 20000.0
 type heuristicStrategy struct {
 }
 
+func NewHeuristicStrategy() Strategy {
+	return new(heuristicStrategy)
+}
+
 func (hs *heuristicStrategy) Scrape(srcUrl *url.URL, doc *goquery.Document) (*SearchResult, error) {
 	allEl := doc.Find("img")
 	allEl = allEl.Not(strings.Join(selectorsIgnore, ", "))

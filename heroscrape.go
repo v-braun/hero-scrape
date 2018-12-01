@@ -32,11 +32,22 @@ type Strategy interface {
 	Scrape(srcUrl *url.URL, doc *goquery.Document) (*SearchResult, error)
 }
 
-func Scrap(srcUrl *url.URL, html io.Reader) (*SearchResult, error) {
-	return ScrapWithStrategy(srcUrl, html, NewOgStrategy())
+func Scrape(srcUrl *url.URL, html io.Reader) (*SearchResult, error) {
+	return ScrapeWithStrategy(srcUrl, html, NewOgStrategy(), NewHeuristicStrategy())
 }
 
-func ScrapWithStrategy(srcUrl *url.URL, html io.Reader, strategies ...Strategy) (*SearchResult, error) {
+// TODO
+// func ScrapeUrl(srcUrl *url.URL) (*SearchResult, error) {
+// 	res, err := http.Get(pageUrl)
+// 	if err != nil{
+// 		return nil, err
+// 	}
+
+// 	defer res.Body.Close()
+// 	return ScrapeWithStrategy(srcUrl, html, NewOgStrategy(), NewHeuristicStrategy())
+// }
+
+func ScrapeWithStrategy(srcUrl *url.URL, html io.Reader, strategies ...Strategy) (*SearchResult, error) {
 	doc, err := goquery.NewDocumentFromReader(html)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed parse document")

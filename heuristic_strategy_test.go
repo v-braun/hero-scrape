@@ -1,4 +1,4 @@
-package heroscrape
+package heroscrape_test
 
 import (
 	"net/http"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/assert"
+	heroscrape "github.com/v-braun/hero-scrape"
 )
 
 func TestHeuristicStrategyFilterDeadZones(t *testing.T) {
@@ -28,7 +29,7 @@ func TestHeuristicStrategyFilterDeadZones(t *testing.T) {
 	`
 	html := strings.NewReader(raw)
 	doc, _ := goquery.NewDocumentFromReader(html)
-	sut := new(heuristicStrategy)
+	sut := heroscrape.NewHeuristicStrategy()
 
 	u, _ := url.Parse("https://www.google.de")
 	res, err := sut.Scrape(u, doc)
@@ -56,7 +57,7 @@ func findByUrl(t *testing.T, pageUrl string) string {
 		return ""
 	}
 
-	sut := new(heuristicStrategy)
+	sut := heroscrape.NewHeuristicStrategy()
 	u, _ := url.Parse(pageUrl)
 	scrapeRes, err := sut.Scrape(u, doc)
 	if !assert.NoErrorf(t, err, "failed scrap %s %v", pageUrl, err) {

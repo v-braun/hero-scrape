@@ -1,4 +1,4 @@
-package heroscrape
+package heroscrape_test
 
 import (
 	"net/url"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	heroscrape "github.com/v-braun/hero-scrape"
 )
 
 var fullHtml string = `
@@ -34,7 +35,7 @@ var nonFullHtml string = `
 func TestOgStrategy(t *testing.T) {
 	u, _ := url.Parse("http://www.imdb.com")
 	html := strings.NewReader(fullHtml)
-	result, err := ScrapWithStrategy(u, html, NewOgStrategy())
+	result, err := heroscrape.ScrapeWithStrategy(u, html, heroscrape.NewOgStrategy())
 	assert.NoError(t, err)
 
 	assert.Equal(t, "The Rock", result.Title)
@@ -45,8 +46,8 @@ func TestOgStrategy(t *testing.T) {
 func TestOgStrategyPartial(t *testing.T) {
 	u, _ := url.Parse("http://www.imdb.com")
 	html := strings.NewReader(nonFullHtml)
-	result, err := ScrapWithStrategy(u, html, NewOgStrategy())
-	assert.Equal(t, NotComplete, err)
+	result, err := heroscrape.ScrapeWithStrategy(u, html, heroscrape.NewOgStrategy())
+	assert.Equal(t, heroscrape.NotComplete, err)
 
 	assert.Equal(t, "The Rock", result.Title)
 	assert.Equal(t, "http://ia.media-imdb.com/images/rock.jpg", result.Image)
