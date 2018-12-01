@@ -28,32 +28,30 @@ go get github.com/v-braun/hero-scrape
 **With pre configured strategies**
 
 ```go
-	pageUrl, _ := url.Parse("https://github.com/v-braun/hero-scrape")
-	res, _ := http.Get(pageUrl.String())
-	defer res.Body.Close()
+pageUrl, _ := url.Parse("https://github.com/v-braun/hero-scrape")
+res, _ := http.Get(pageUrl.String())
+defer res.Body.Close()
 
-	result, _ := heroscrape.Scrape(pageUrl, res.Body)
-	fmt.Println(result.Image)
+result, _ := heroscrape.Scrape(pageUrl, res.Body)
+fmt.Println(result.Image)
 
 ```
 
 **With cusom strategies**
 
 ```go
-	pageUrl, _ := url.Parse("https://github.com/v-braun/hero-scrape")
-	res, _ := http.Get(pageUrl.String())
-	defer res.Body.Close()
+pageUrl, _ := url.Parse("https://github.com/v-braun/hero-scrape")
+res, _ := http.Get(pageUrl.String())
+defer res.Body.Close()
 
-	result, _ := heroscrape.ScrapeWithStrategy(pageUrl, res.Body, , NewOgStrategy(), NewHeuristicStrategy(), YourOwnStrategy())
-	fmt.Println(result.Image)
+result, _ := heroscrape.ScrapeWithStrategy(pageUrl, res.Body, , NewOgStrategy(), NewHeuristicStrategy(), YourOwnStrategy())
+fmt.Println(result.Image)
 
 ```
 
 
-## Related Projects / Based on
-
+## Related Projects
 - [fastimage](https://github.com/rubenfonseca/fastimage/) Finds the type and/or size of a remote image given its uri, by fetching as little as needed.
-
 - [goquery](https://github.com/PuerkitoBio/goquery) A little like that j-thing, only in Go.
 
 ## Known Issues
