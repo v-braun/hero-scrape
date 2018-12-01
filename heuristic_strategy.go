@@ -77,13 +77,13 @@ func (hs *heuristicStrategy) findMatch(urls []*url.URL) *url.URL {
 		imgType, size, err := fastimage.DetectImageType(u.String())
 
 		if err != nil {
-			Logger.Printf("fastimage err %v \n", err)
+			Logger.Printf("fastimage err | src %s | type: %s | size %v | err %v \n", u.String(), imgType, size, err)
 			continue
 		}
 
 		Logger.Printf("check type %s \n", u.String())
 		if !hs.typeMatch(imgType) {
-			Logger.Printf("failed type check %s \n", u.String())
+			Logger.Printf("failed type check (%s) %s \n", imgType, u.String())
 			continue
 		}
 
@@ -124,6 +124,7 @@ func (og *heuristicStrategy) typeMatch(t fastimage.ImageType) bool {
 
 func (og *heuristicStrategy) getUrls(selections *goquery.Selection, pageUrl *url.URL) []*url.URL {
 	var res []*url.URL
+	var distinct []string
 	selections.Each(func(i int, s *goquery.Selection) {
 		src := s.AttrOr("src", "")
 		if src == "" {
@@ -138,9 +139,10 @@ func (og *heuristicStrategy) getUrls(selections *goquery.Selection, pageUrl *url
 		}
 
 		parsedHref = pageUrl.ResolveReference(parsedHref)
-		if parsedHref.IsAbs() {
+		if parsedHref.IsAbs() && !funk.Contains(distinct, parsedHref.String()) {
 			Logger.Printf("fetched src url: %s | src: %s \n", pageUrl.String(), src)
 			res = append(res, parsedHref)
+			distinct = append(distinct, parsedHref.String())
 		}
 	})
 

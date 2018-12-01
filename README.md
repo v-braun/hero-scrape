@@ -7,7 +7,7 @@
 By [v-braun - viktor-braun.de](https://viktor-braun.de).
 
 <p align="center">
-<img width="70%" src="https://raw.githubusercontent.com/v-braun/hero-scrape/master/logo.svg?sanitize=true" />
+<img width="70%" src="https://raw.githubusercontent.com/v-braun/hero-scrape/master/logo.png?sanitize=true" />
 </p>
 
 ## Description
