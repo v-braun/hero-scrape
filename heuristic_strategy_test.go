@@ -122,3 +122,59 @@ func TestHeuristicStrategyBlogs(t *testing.T) {
 
 	wg.Wait()
 }
+
+func TestNegativeCases(t *testing.T) {
+	htmlTemplate := `
+	<html prefix="og: http://ogp.me/ns#">
+	<head>
+	</head>
+	<body>
+	<img src="{{url}}" />
+	</body>
+	</html>
+	`
+	heroscrape.Debug()
+
+	// invalid ratio
+	u, _ := url.Parse("https://via.placeholder.com/150x1")
+	html := strings.Replace(htmlTemplate, "{{url}}", u.String(), 1)
+	res, _ := heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
+	assert.Equal(t, "", res.Image)
+
+	// invalid ratio
+	u, _ = url.Parse("https://via.placeholder.com/1x150")
+	html = strings.Replace(htmlTemplate, "{{url}}", u.String(), 1)
+	res, _ = heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
+	assert.Equal(t, "", res.Image)
+
+	// too small
+	u, _ = url.Parse("https://via.placeholder.com/10x10")
+	html = strings.Replace(htmlTemplate, "{{url}}", u.String(), 1)
+	res, _ = heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
+	assert.Equal(t, "", res.Image)
+
+	// bmp
+	u, _ = url.Parse("https://www.fileformat.info/format/bmp/sample/43ab63cb34cc4486b09f559a225ce28e/BLK.BMP")
+	html = strings.Replace(htmlTemplate, "{{url}}", u.String(), 1)
+	res, _ = heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
+	assert.Equal(t, "", res.Image)
+
+	// TIFF file
+	u, _ = url.Parse("https://www.fileformat.info/format/tiff/sample/3794038f08df403bb446a97f897c578d/CCITT_1.TIF")
+	html = strings.Replace(htmlTemplate, "{{url}}", u.String(), 1)
+	res, _ = heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
+	assert.Equal(t, "", res.Image)
+
+	// empty src tag
+	u, _ = url.Parse("https://www.fileformat.info/format/bmp/sample/43ab63cb34cc4486b09f559a225ce28e/BLK.BMP")
+	html = strings.Replace(htmlTemplate, "{{url}}", "", 1)
+	res, _ = heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
+	assert.Equal(t, "", res.Image)
+
+	// invalid src tag
+	u, _ = url.Parse("foo://abv/?&$<§819")
+	html = strings.Replace(htmlTemplate, "{{url}}", ":?&$<§819", 1)
+	res, _ = heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
+	assert.Equal(t, "", res.Image)
+
+}
