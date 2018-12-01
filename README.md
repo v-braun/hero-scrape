@@ -1,6 +1,8 @@
 # hero-scrape
 > Find the hero (main) image of an URL
 
+[![Build Status](https://travis-ci.org/v-braun/hero-scrape.svg?branch=master)](https://travis-ci.org/v-braun/hero-scrape)
+
 By [v-braun - viktor-braun.de](https://viktor-braun.de).
 
 <p align="center">
