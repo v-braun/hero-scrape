@@ -1,5 +1,5 @@
 # hero-scrape
-> Find the hero (main) image of an URL
+> Find the hero (main) image of an URL 
 
 [![Build Status](https://travis-ci.org/v-braun/hero-scrape.svg?branch=master)](https://travis-ci.org/v-braun/hero-scrape)
 [![codecov](https://codecov.io/gh/v-braun/hero-scrape/branch/master/graph/badge.svg)](https://codecov.io/gh/v-braun/hero-scrape)
@@ -9,6 +9,9 @@ By [v-braun - viktor-braun.de](https://viktor-braun.de).
 <p align="center">
 <img width="70%" src="https://raw.githubusercontent.com/v-braun/hero-scrape/master/logo.png?sanitize=true" />
 </p>
+
+## Demo
+See a demo on https://hero-scrape.viktor-braun.de
 
 ## Description
 hero-scrape extracts the main image of a webpage.
@@ -54,6 +57,7 @@ fmt.Println(result.Image)
 
 
 ## Related Projects
+- [hero-scrape] (https://github.com/v-braun/hero-scrape-web) Demo for this lib
 - [fastimage](https://github.com/rubenfonseca/fastimage/) Finds the type and/or size of a remote image given its uri, by fetching as little as needed.
 - [goquery](https://github.com/PuerkitoBio/goquery) A little like that j-thing, only in Go.
 
