@@ -57,7 +57,7 @@ fmt.Println(result.Image)
 
 
 ## Related Projects
-- [hero-scrape] (https://github.com/v-braun/hero-scrape-web) Demo for this lib
+- [hero-scrape](https://github.com/v-braun/hero-scrape-web) Demo for this lib
 - [fastimage](https://github.com/rubenfonseca/fastimage/) Finds the type and/or size of a remote image given its uri, by fetching as little as needed.
 - [goquery](https://github.com/PuerkitoBio/goquery) A little like that j-thing, only in Go.
 
