@@ -47,7 +47,7 @@ func TestOgStrategyPartial(t *testing.T) {
 	u, _ := url.Parse("http://www.imdb.com")
 	html := strings.NewReader(nonFullHtml)
 	result, err := heroscrape.ScrapeWithStrategy(u, html, heroscrape.NewOgStrategy())
-	assert.Equal(t, heroscrape.NotComplete, err)
+	assert.Equal(t, heroscrape.ErrNotComplete, err)
 
 	assert.Equal(t, "The Rock", result.Title)
 	assert.Equal(t, "http://ia.media-imdb.com/images/rock.jpg", result.Image)

@@ -13,27 +13,34 @@ import (
 
 type ImageLocation string
 
-var NotComplete = errors.New("Not complete")
+// ErrNotComplete will be returned if the Scrape was not completley done
+var ErrNotComplete = errors.New("Not complete")
+
+// Logger instance for the entire module
 var Logger = log.New(ioutil.Discard, "hero-scrape", log.LstdFlags)
 
+// SearchResult represents the scrape result
 type SearchResult struct {
 	Image       string
 	Title       string
 	Description string
 }
 
+// Complete returns true if the SearchResult has found everything
 func (sr *SearchResult) Complete() bool {
 	return sr.Title != "" &&
 		sr.Image != "" &&
 		sr.Description != ""
 }
 
+// Strategy interface represents an interface for scraping an website
 type Strategy interface {
-	Scrape(srcUrl *url.URL, doc *goquery.Document) (*SearchResult, error)
+	Scrape(srcURL *url.URL, doc *goquery.Document) (*SearchResult, error)
 }
 
-func Scrape(srcUrl *url.URL, html io.Reader) (*SearchResult, error) {
-	return ScrapeWithStrategy(srcUrl, html, NewOgStrategy(), NewHeuristicStrategy())
+// Scrape the given url
+func Scrape(srcURL *url.URL, html io.Reader) (*SearchResult, error) {
+	return ScrapeWithStrategy(srcURL, html, NewOgStrategy(), NewHeuristicStrategy())
 }
 
 // TODO
@@ -47,7 +54,8 @@ func Scrape(srcUrl *url.URL, html io.Reader) (*SearchResult, error) {
 // 	return ScrapeWithStrategy(srcUrl, html, NewOgStrategy(), NewHeuristicStrategy())
 // }
 
-func ScrapeWithStrategy(srcUrl *url.URL, html io.Reader, strategies ...Strategy) (*SearchResult, error) {
+// ScrapeWithStrategy scrapes the given url with the given strategy
+func ScrapeWithStrategy(srcURL *url.URL, html io.Reader, strategies ...Strategy) (*SearchResult, error) {
 	doc, err := goquery.NewDocumentFromReader(html)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed parse document")
@@ -55,21 +63,21 @@ func ScrapeWithStrategy(srcUrl *url.URL, html io.Reader, strategies ...Strategy)
 
 	var result = new(SearchResult)
 	for _, stategy := range strategies {
-		finding, err := stategy.Scrape(srcUrl, doc)
+		finding, err := stategy.Scrape(srcURL, doc)
 		if err != nil {
 			return nil, err
 		} else if finding != nil {
-			Logger.Printf("finding %s \n", srcUrl.String())
+			Logger.Printf("finding %s \n", srcURL.String())
 			merge(result, finding)
 		}
 
 		if result.Complete() {
-			Logger.Printf("complete %s \n", srcUrl.String())
+			Logger.Printf("complete %s \n", srcURL.String())
 			return result, nil
 		}
 	}
 
-	return result, NotComplete
+	return result, ErrNotComplete
 }
 
 func merge(dest *SearchResult, src *SearchResult) {
@@ -84,6 +92,7 @@ func merge(dest *SearchResult, src *SearchResult) {
 	}
 }
 
+// Debug enables the module log debugging
 func Debug() {
 	Logger = log.New(os.Stderr, "hero-scrape", log.LstdFlags)
 }
