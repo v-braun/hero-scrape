@@ -40,30 +40,36 @@ func TestHeuristicStrategyFilterDeadZones(t *testing.T) {
 	assert.Equal(t, img, res.Image)
 }
 
-func findByUrl(t *testing.T, pageUrl string) string {
+func scrapeUrl(t *testing.T, pageUrl string) *heroscrape.SearchResult {
 	res, err := http.Get(pageUrl)
 	if !assert.NoErrorf(t, err, "could not download %s", pageUrl) {
-		return ""
+		return nil
 	}
 
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
 		assert.FailNow(t, "invalid statuscode %d for url %s", res.StatusCode, pageUrl)
-		return ""
+		return nil
 	}
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if !assert.NoErrorf(t, err, "could not parse %s", pageUrl) {
-		return ""
+		return nil
 	}
 
 	sut := heroscrape.NewHeuristicStrategy()
 	u, _ := url.Parse(pageUrl)
+
 	scrapeRes, err := sut.Scrape(u, doc)
 	if !assert.NoErrorf(t, err, "failed scrap %s %v", pageUrl, err) {
-		return ""
+		return nil
 	}
 
+	return scrapeRes
+}
+
+func findByUrl(t *testing.T, pageUrl string) string {
+	scrapeRes := scrapeUrl(t, pageUrl)
 	if scrapeRes == nil {
 		return ""
 	}
@@ -177,4 +183,13 @@ func TestNegativeCases(t *testing.T) {
 	res, _ = heroscrape.ScrapeWithStrategy(u, strings.NewReader(html), heroscrape.NewHeuristicStrategy())
 	assert.Equal(t, "", res.Image)
 
+}
+
+func TestTitleScrape(t *testing.T) {
+	res := scrapeUrl(t, "https://hero-scrape.viktor-braun.de/")
+	if assert.NotNil(t, res, "could not find a scrape result") {
+		return
+	}
+
+	assert.Equal(t, "Google2", res.Title)
 }

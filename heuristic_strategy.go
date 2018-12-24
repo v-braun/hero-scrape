@@ -50,6 +50,11 @@ func NewHeuristicStrategy() Strategy {
 }
 
 func (hs *heuristicStrategy) Scrape(srcUrl *url.URL, doc *goquery.Document) (*SearchResult, error) {
+	titleEl := doc.Find("title")
+	title := ""
+	if titleEl != nil {
+		title = titleEl.Text()
+	}
 	allEl := doc.Find("img")
 	allEl = allEl.Not(strings.Join(selectorsIgnore, ", "))
 
@@ -58,17 +63,20 @@ func (hs *heuristicStrategy) Scrape(srcUrl *url.URL, doc *goquery.Document) (*Se
 	p1Match := hs.findMatch(p1Urls)
 
 	if p1Match != nil {
-		return &SearchResult{Image: p1Match.String()}, nil
+		return &SearchResult{Image: p1Match.String(), Title: title}, nil
 	}
 
 	p2El := allEl
 	p2Urls := hs.getUrls(p2El, srcUrl)
 	p2Match := hs.findMatch(p2Urls)
 	if p2Match != nil {
-		return &SearchResult{Image: p2Match.String()}, nil
+		return &SearchResult{Image: p2Match.String(), Title: title}, nil
 	}
 
 	// p1Res := checkImages()
+	if title != "" {
+		return &SearchResult{Title: title}, nil
+	}
 
 	return nil, nil
 }
